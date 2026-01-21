@@ -24,7 +24,9 @@ Permissions: An active Azure session with at least Reader permissions on the tar
 
 Clone the repository to your local machine: 
 
-```powershell git clone [https://github.com/yvperren/Get-DefenderPricingPlan.git](https://github.com/yvperren/Get-DefenderPricingPlan.git) cd Get-DefenderPricingPlan ```
+```powershell 
+git clone [https://github.com/yvperren/Get-DefenderPricingPlan.git](https://github.com/yvperren/Get-DefenderPricingPlan.git) cd Get-DefenderPricingPlan
+```
 
 ## Usage
 
@@ -32,25 +34,30 @@ Clone the repository to your local machine:
 
 Audit all subscriptions accessible in the current context and output the results directly to the console: 
 
-```powershell Connect-AzAccount .\Get-DefenderPricingPlan.ps1 ```
+```powershell
+Connect-AzAccount .\Get-DefenderPricingPlan.ps1
+```
 
 ### Execution for a Specific Subscription
 
 If you want to target a single specific subscription by its ID: 
 
-```powershell .\Get-DefenderPricingPlan.ps1 -SubscriptionId ***00000000**-**0000**-**0000**-**0000**-**000000000000*** ```
+```powershell
+.\Get-DefenderPricingPlan.ps1 -SubscriptionId ***00000000**-**0000**-**0000**-**0000**-**000000000000*** 
+```
 
 ### Execution for Multiple Specific Subscriptions
 
 You can pass an array of subscription IDs to the script to audit a specific subset of your environment: 
 
-```powershell $mySubs = @(***00000000**-**1111**-**2222**-**3333**-**444444444444***, ***55555555**-**6666**-**7777**-**8888**-**999999999999***) foreach ($sub in $mySubs) { .\Get-DefenderPricingPlan.ps1 -SubscriptionId $sub } ```
+```powershell 
+.\Get-DefenderPricingPlan.ps1 -SubscriptionId ***00000000**-**1111**-**2222**-**3333**-**444444444444***, ***55555555**-**6666**-**7777**-**8888**-**999999999999***
+```
 
 ### Exporting Results to CSV
 
 To save the output for reporting or analysis, you can export the results to a **CSV** file: 
 
-```powershell .\Get-DefenderPricingPlan.ps1 | Export-Csv -Path *DefenderPricingReport.csv* -NoTypeInformation ```
 
 ## Output Details
 
