@@ -9,18 +9,18 @@ which Defender for Cloud plan is enabled and where VM-level overrides exist.
 
 ---
 
-## 🚀 Features
+## Features
 
-- ✅ Detects **Defender for Cloud pricing plan** for:
+- Detects **Defender for Cloud pricing plan** for:
   - Subscription level
   - Individual Virtual Machines (override detection)
-- 📊 Optional CSV export
-- 🔄 Safe progress reporting
-- ☁️ Works in: PowerShell 7+ and Azure Cloud Shell
+- Optional CSV export
+- Safe progress reporting
+- Works in: PowerShell 7+ and Azure Cloud Shell
 
 ---
 
-## 📦 Requirements
+## Requirements
 
 - Azure PowerShell (`Az`) module
 - An authenticated Azure session
@@ -29,7 +29,7 @@ which Defender for Cloud plan is enabled and where VM-level overrides exist.
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
 The script uses your existing Azure sign‑in:
 
@@ -37,7 +37,7 @@ The script uses your existing Azure sign‑in:
 Connect-AzAccount
 ```
 
-## 📦 Installation
+## Installation
 
 ```powershell
 git clone https:/github.com/yvperren/Get-DefenderPricingPlan/Get-DefenderPricingPlan.git
@@ -45,7 +45,7 @@ cd Get-DefenderPricingPlan
 .\Get-DefenderPricingPlan.ps1 -SubscriptionId <GUID>
 ```
 
-## ▶️ Usage
+## Usage
 
 Console output only
 
@@ -70,7 +70,7 @@ Custom CSV path
 
 ```
 
-## 🖥️ Example Output
+## Example Output
 
 ```powershell
 
