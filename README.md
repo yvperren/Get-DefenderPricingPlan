@@ -1,85 +1,67 @@
+## Get-DefenderPricingPlan
 
-# Get-DefenderPricingPlan
+## Description
 
-A PowerShell utility to inspect **Microsoft Defender for Cloud pricing sub‑plans**  
-(**Free / P1 / P2**) for **Virtual Machines** at **subscription** and **VM** scope.
-
-The script queries Azure Resource Manager (ARM) and Microsoft Security APIs to show
-which Defender for Cloud plan is enabled and where VM-level overrides exist.
-
----
+Get-DefenderPricingPlan.ps1 is a PowerShell script designed to retrieve and display Microsoft Defender for Cloud pricing tiers across Azure subscriptions. It provides a consolidated view of which Defender plans (such as Servers, Storage, Key Vault, and Databases) are currently active and whether they are on the 'Free' or 'Standard' (paid) tier.
 
 ## Features
 
-- Detects **Defender for Cloud pricing plan** for:
-  - Subscription level
-  - Individual Virtual Machines (override detection)
-- Optional CSV export
-- Safe progress reporting
-- Works in: PowerShell 7+ and Azure Cloud Shell
+Multi-Subscription Support: Iterates through all subscriptions accessible in the current Azure context.
 
----
+Comprehensive Coverage: Identifies the pricing configuration for all available Defender for Cloud resource types.
 
-## Requirements
+Audit-Ready: Provides a structured output suitable for auditing and cost management.
 
-- Azure PowerShell (`Az`) module
-- An authenticated Azure session
-- Minimum role:
-  - **Reader** or **Security Reader** on the target subscription
+## Prerequisites
 
----
+PowerShell 7.x (recommended) or PowerShell 5.1.
 
-## Authentication
+Az PowerShell Module: Specifically Az.Accounts and Az.Security.
 
-The script uses your existing Azure sign‑in:
-
-```powershell
-Connect-AzAccount
-```
+Permissions: An active Azure session with at least Reader permissions on the target subscriptions.
 
 ## Installation
 
-```powershell
-git clone https://github.com/yvperren/Get-DefenderPricingPlan.git
-cd Get-DefenderPricingPlan
-.\Get-DefenderPricingPlan.ps1 -SubscriptionId <GUID>
-```
+Clone the repository to your local machine: 
+
+```powershell git clone [https://github.com/yvperren/Get-DefenderPricingPlan.git](https://github.com/yvperren/Get-DefenderPricingPlan.git) cd Get-DefenderPricingPlan ```
 
 ## Usage
 
-Console output only
+### Basic Execution
 
-```powershell
-.\Get-DefenderPricingPlan.ps1 -SubscriptionId <SUBSCRIPTION-GUID>
-```
-Export results to CSV
-```powershell
+Audit all subscriptions accessible in the current context and output the results directly to the console: 
 
-.\Get-DefenderPricingPlan.ps1 `
-  -SubscriptionId <SUBSCRIPTION-GUID> `
-  -ExportCsv
+```powershell Connect-AzAccount .\Get-DefenderPricingPlan.ps1 ```
 
-```
-Custom CSV path
-```powershell
+### Execution for a Specific Subscription
 
-.\Get-DefenderPricingPlan.ps1 `
-  -SubscriptionId <SUBSCRIPTION-GUID> `
-  -ExportCsv `
-  -CsvPath C:\Temp\defender-pricing.csv
+If you want to target a single specific subscription by its ID: 
 
-```
+```powershell .\Get-DefenderPricingPlan.ps1 -SubscriptionId ***00000000**-**0000**-**0000**-**0000**-**000000000000*** ```
 
-## Example Output
+### Execution for Multiple Specific Subscriptions
 
-```powershell
+You can pass an array of subscription IDs to the script to audit a specific subset of your environment: 
 
+```powershell $mySubs = @(***00000000**-**1111**-**2222**-**3333**-**444444444444***, ***55555555**-**6666**-**7777**-**8888**-**999999999999***) foreach ($sub in $mySubs) { .\Get-DefenderPricingPlan.ps1 -SubscriptionId $sub } ```
 
-Subscription-level plan for VirtualMachines: P2
+### Exporting Results to CSV
 
-VM-WIN-01                          P2
-VM-LINUX-02                        Free
-VM-APP-03                          P1
+To save the output for reporting or analysis, you can export the results to a **CSV** file: 
 
+```powershell .\Get-DefenderPricingPlan.ps1 | Export-Csv -Path *DefenderPricingReport.csv* -NoTypeInformation ```
 
-```
+## Output Details
+
+The script returns an object for each resource type with the following properties:
+
+SubscriptionName: The name of the Azure subscription.
+
+PlanName: The name of the Defender plan (e.g., VirtualMachines, KeyVaults).
+
+PricingTier: The tier assigned (Free or Standard).
+
+SubPlan: Displays specific sub-plan details (e.g., P1 or P2) where applicable.
+
+License: This project is licensed under the **MIT** License.
