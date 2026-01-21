@@ -39,8 +39,11 @@ Connect-AzAccount
 
 ## 📦 Installation
 
-git clone https://github.com/<your-username>/Get-DefenderPricingPlan.git
+```powershell
+git clone https://github.com/<your-org>/Get-DefenderPricingPlan.git
 cd Get-DefenderPricingPlan
+.\Get-DefenderPricingPlan.ps1 -SubscriptionId <GUID>
+```
 
 ## ▶️ Usage
 
