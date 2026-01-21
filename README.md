@@ -1,74 +1,78 @@
-## Get-DefenderPricingPlan
+# Get-DefenderPricingPlan
 
 ## Description
+`Get-DefenderPricingPlan.ps1` is a specialized PowerShell script designed to audit **Microsoft Defender for Servers** pricing tiers at the individual Virtual Machine level. 
 
-Get-DefenderPricingPlan.ps1 is a PowerShell script designed to retrieve and display Microsoft Defender for Cloud pricing tiers across Azure subscriptions. It provides a consolidated view of which Defender plans (such as Servers, Storage, Key Vault, and Databases) are currently active and whether they are on the 'Free' or 'Standard' (paid) tier.
+Unlike standard scripts that only check subscription-level settings, this tool queries the Azure Resource Manager (ARM) API to determine the effective plan (**P1**, **P2**, or **Free**) for every VM across your specified subscriptions. It provides a color-coded console summary and detailed CSV reporting for audit compliance and cost management.
+
+
 
 ## Features
-
-Multi-Subscription Support: Iterates through all subscriptions accessible in the current Azure context.
-
-Comprehensive Coverage: Identifies the pricing configuration for all available Defender for Cloud resource types.
-
-Audit-Ready: Provides a structured output suitable for auditing and cost management.
+* **Per-VM Granularity**: Identifies specific VMs that might be overriding subscription-level pricing.
+* **Intelligent Authentication**: Automatically handles Azure context and token conversion (including SecureString handling).
+* **Progress Tracking**: Real-time progress bars for long-running scans across large environments.
+* **Global Limit Control**: Prevents excessive API calls by capping the total number of VMs scanned across all subscriptions.
+* **Multi-Subscription Reporting**: Provides both an overall summary and a per-subscription breakdown.
 
 ## Prerequisites
-
-PowerShell 7.x (recommended) or PowerShell 5.1.
-
-Az PowerShell Module: Specifically Az.Accounts and Az.Security.
-
-Permissions: An active Azure session with at least Reader permissions on the target subscriptions.
+* **PowerShell**: Version 7.x (recommended) or 5.1.
+* **Az Module**: Requires `Az.Accounts` and `Az.Compute`.
+* **Connectivity**: Access to `management.azure.com`.
+* **Permissions**: **Reader** access (or higher) on all target subscriptions.
 
 ## Installation
+```powershell
+# Clone the repository
+git clone https://github.com/yvperren/Get-DefenderPricingPlan.git
 
-Clone the repository to your local machine: 
-
-```powershell 
-git clone [https://github.com/yvperren/Get-DefenderPricingPlan.git](https://github.com/yvperren/Get-DefenderPricingPlan.git) cd Get-DefenderPricingPlan
+# Navigate to the directory
+cd Get-DefenderPricingPlan
 ```
 
 ## Usage
 
-### Basic Execution
-
-Audit all subscriptions accessible in the current context and output the results directly to the console: 
-
+### 1. Interactive Mode
+Run the script without parameters to be prompted for subscription IDs. You can paste a comma-separated list directly into the prompt.
 ```powershell
-Connect-AzAccount .\Get-DefenderPricingPlan.ps1
+Connect-AzAccount
+.\Get-DefenderPricingPlan.ps1
 ```
 
-### Execution for a Specific Subscription
-
-If you want to target a single specific subscription by its ID: 
-
+### 2. Targeting Specific Subscriptions
+Pass one or more specific Subscription IDs to bypass the interactive prompt.
 ```powershell
-.\Get-DefenderPricingPlan.ps1 -SubscriptionId ***00000000**-**0000**-**0000**-**0000**-**000000000000*** 
+.\Get-DefenderPricingPlan.ps1 -SubscriptionId "00000000-1111-2222-3333-444444444444", "abc123de-45fg-67hi-89jk-lmnopqrs"
 ```
 
-### Execution for Multiple Specific Subscriptions
-
-You can pass an array of subscription IDs to the script to audit a specific subset of your environment: 
-
-```powershell 
-.\Get-DefenderPricingPlan.ps1 -SubscriptionId ***00000000**-**1111**-**2222**-**3333**-**444444444444***, ***55555555**-**6666**-**7777**-**8888**-**999999999999***
+### 3. Limited Scan (Global Limit)
+Use the `-Limit` parameter to stop the script after a certain number of VMs have been processed globally across all provided subscriptions.
+```powershell
+.\Get-DefenderPricingPlan.ps1 -SubscriptionId "your-sub-id" -Limit 10
 ```
 
-### Exporting Results to CSV
+### 4. Audit with CSV Export
+Run a scan and save the results to a specific file path.
+```powershell
+.\Get-DefenderPricingPlan.ps1 -SubscriptionId "your-sub-id" -ExportCsv -CsvPath "C:\Audits\DefenderReport.csv"
+```
 
-To save the output for reporting or analysis, you can export the results to a **CSV** file: 
+## Parameters
 
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `-SubscriptionId` | `String[]` | No | An array of Azure Subscription IDs to scan. |
+| `-Limit` | `Int` | No | Maximum number of VMs to check across all subscriptions. |
+| `-ExportCsv` | `Switch` | No | If present, exports the results to a CSV file. |
+| `-CsvPath` | `String` | No | Custom path for the CSV. Defaults to `.\vm-defender-servers-plan-report.csv`. |
 
-## Output Details
+## Technical Output Logic
+The script visualizes the protection state using the following logic:
+* **Green (P2)**: Defender for Servers Plan 2 is active.
+* **Yellow (P1)**: Defender for Servers Plan 1 is active.
+* **Red (Free)**: No Defender for Servers protection active.
+* **Gray (Unknown)**: Indicates an unexpected state or error.
 
-The script returns an object for each resource type with the following properties:
+---
 
-SubscriptionName: The name of the Azure subscription.
-
-PlanName: The name of the Defender plan (e.g., VirtualMachines, KeyVaults).
-
-PricingTier: The tier assigned (Free or Standard).
-
-SubPlan: Displays specific sub-plan details (e.g., P1 or P2) where applicable.
-
-License: This project is licensed under the **MIT** License.
+**Author**: [yvperren](https://github.com/yvperren)  
+**License**: MIT License
