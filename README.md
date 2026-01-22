@@ -1,22 +1,21 @@
 # Get-DefenderPricingPlan
 
 ## Description
-`Get-DefenderPricingPlan.ps1` is a specialized PowerShell script designed to audit **Microsoft Defender for Servers** pricing tiers at the individual Virtual Machine level. 
+`Get-DefenderPricingPlan.ps1` is a specialized PowerShell script designed to audit **Microsoft Defender for Servers** pricing tiers at a granular level. 
 
-Unlike standard scripts that only check subscription-level settings, this tool queries the Azure Resource Manager (ARM) API to determine the effective plan (**P1**, **P2**, or **Free**) for every VM across your specified subscriptions. It provides a color-coded console summary and detailed CSV reporting for audit compliance and cost management.
-
-
+Unlike standard scripts that only check subscription-level settings, this tool queries the Azure Resource Manager (ARM) API to determine the effective plan (**P1**, **P2**, or **Free**) for every supported resource across your specified subscriptions. It supports **Azure Virtual Machines**, **Virtual Machine Scale Sets (VMSS)**, and **Azure Arc-enabled servers**.
 
 ## Features
-* **Per-VM Granularity**: Identifies specific VMs that might be overriding subscription-level pricing.
-* **Intelligent Authentication**: Automatically handles Azure context and token conversion (including SecureString handling).
-* **Progress Tracking**: Real-time progress bars for long-running scans across large environments.
-* **Global Limit Control**: Prevents excessive API calls by capping the total number of VMs scanned across all subscriptions.
-* **Multi-Subscription Reporting**: Provides both an overall summary and a per-subscription breakdown.
+* **Multi-Resource Granularity**: Identifies pricing for VMs, Scale Sets, and Arc machines that may override subscription-level defaults.
+* **Unified Resource Discovery**: Automatically scans for `Microsoft.Compute/virtualMachines`, `virtualMachineScaleSets`, and `Microsoft.HybridCompute/machines`.
+* **Intelligent Authentication**: Handles Azure context management and token conversion (including SecureString processing).
+* **Progress Tracking**: Real-time progress bars for visibility during large-scale environment scans.
+* **Global Limit Control**: Prevents excessive API calls by capping the total number of resources scanned across all subscriptions.
+* **Consolidated Reporting**: Provides a per-scope summary (VM vs. VMSS vs. Arc) and optional CSV export.
 
 ## Prerequisites
 * **PowerShell**: Version 7.x (recommended) or 5.1.
-* **Az Module**: Requires `Az.Accounts` and `Az.Compute`.
+* **Az Module**: Requires `Az.Accounts`, `Az.Compute`, and `Az.Resources`.
 * **Connectivity**: Access to `management.azure.com`.
 * **Permissions**: **Reader** access (or higher) on all target subscriptions.
 
@@ -32,7 +31,7 @@ cd Get-DefenderPricingPlan
 ## Usage
 
 ### 1. Interactive Mode
-Run the script without parameters to be prompted for subscription IDs. You can paste a comma-separated list directly into the prompt.
+Run the script without parameters to be prompted for subscription IDs. You can paste a comma-separated list of IDs directly.
 ```powershell
 Connect-AzAccount
 .\Get-DefenderPricingPlan.ps1
@@ -45,15 +44,15 @@ Pass one or more specific Subscription IDs to bypass the interactive prompt.
 ```
 
 ### 3. Limited Scan (Global Limit)
-Use the `-Limit` parameter to stop the script after a certain number of VMs have been processed globally across all provided subscriptions.
+Use the `-Limit` parameter to stop the script after a certain number of resources have been processed globally.
 ```powershell
-.\Get-DefenderPricingPlan.ps1 -SubscriptionId "your-sub-id" -Limit 10
+.\Get-DefenderPricingPlan.ps1 -Limit 50
 ```
 
 ### 4. Audit with CSV Export
 Run a scan and save the results to a specific file path.
 ```powershell
-.\Get-DefenderPricingPlan.ps1 -SubscriptionId "your-sub-id" -ExportCsv -CsvPath "C:\Audits\DefenderReport.csv"
+.\Get-DefenderPricingPlan.ps1 -ExportCsv -CsvPath "C:\Audits\DefenderReport.csv"
 ```
 
 ## Parameters
@@ -61,16 +60,21 @@ Run a scan and save the results to a specific file path.
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | `-SubscriptionId` | `String[]` | No | An array of Azure Subscription IDs to scan. |
-| `-Limit` | `Int` | No | Maximum number of VMs to check across all subscriptions. |
+| `-Limit` | `Int` | No | Maximum number of resources to check across all subscriptions. |
 | `-ExportCsv` | `Switch` | No | If present, exports the results to a CSV file. |
-| `-CsvPath` | `String` | No | Custom path for the CSV. Defaults to `.\vm-defender-servers-plan-report.csv`. |
+| `-CsvPath` | `String` | No | Custom path for the CSV. Defaults to `.\server-defender-plan-report.csv`. |
 
 ## Technical Output Logic
 The script visualizes the protection state using the following logic:
-* **Green (P2)**: Defender for Servers Plan 2 is active.
-* **Yellow (P1)**: Defender for Servers Plan 1 is active.
-* **Red (Free)**: No Defender for Servers protection active.
+* **Green (P2 / Standard)**: Defender for Servers Plan 2 or the legacy "Standard" tier is active.
+* **DarkYellow (P1)**: Defender for Servers Plan 1 is active.
+* **Red (Free)**: No Defender for Servers protection is active.
 * **Gray (Unknown)**: Indicates an unexpected state or error.
+
+The **Scope** column identifies the resource type:
+* `VM`: Azure Virtual Machine
+* `VMSS`: Virtual Machine Scale Set
+* `Arc`: Azure Arc-enabled Server
 
 ---
 
